@@ -41,7 +41,7 @@ export const children = pgTable('children', {
     lastName: varchar('last_name', { length: 255 }).notNull(),
     gender: varchar('gender', { length: 255 }).notNull(),
     dateOfBirth: date('date_of_birth').notNull(),
-    allergies: varchar('allergies', { length: 255 }).notNull(),
+    allergies: varchar('allergies', { length: 255 }),
     classId: integer('class_id').notNull().references(() => classes.id),
     ...timestamps,
 });
@@ -56,7 +56,7 @@ export const childrenParents = pgTable('children_parents', {
 
 export const classRelations = relations(classes, ({many}) => ({children: many(children)}))
 
-export const parentRelations = relations(parents, ({many}) => ({children: many(children)}))
+export const parentRelations = relations(parents, ({many}) => ({children: many(childrenParents)}))
 
 export const childRelations = relations(children, ({one, many}) => ({
     class: one(classes, {
@@ -66,14 +66,25 @@ export const childRelations = relations(children, ({one, many}) => ({
     parents: many(childrenParents),
 }));
 
+export const childrenParentsRelations = relations(childrenParents, ({one}) => ({
+    child: one(children, {
+        fields: [childrenParents.childId],
+        references: [children.id],
+    }),
+    parent: one(parents, {
+        fields: [childrenParents.parentId],
+        references: [parents.id],
+    }),
+}));
+
 export type Class = typeof classes.$inferSelect;
 export type NewClass = typeof classes.$inferInsert;
 
 export type Parent = typeof parents.$inferSelect;
 export type NewParent = typeof parents.$inferInsert;
 
-export type Child = typeof children.$inferSelect;
-export type NewChild = typeof children.$inferInsert;
+export type Children = typeof children.$inferSelect;
+export type NewChildren = typeof children.$inferInsert;
 
 export type ChildrenParent = typeof childrenParents.$inferSelect;
 export type NewChildrenParent = typeof childrenParents.$inferInsert;

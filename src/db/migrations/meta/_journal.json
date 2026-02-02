@@ -8,6 +8,13 @@
       "when": 1770051764593,
       "tag": "0000_foamy_skrulls",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1770055636111,
+      "tag": "0001_right_quasar",
+      "breakpoints": true
     }
   ]
 }
