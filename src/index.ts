@@ -1,15 +1,26 @@
 import express from 'express';
+import childrenRoutes from './routes/children';
+import staffRoutes from './routes/staff';
+import cors from 'cors';
 
 const app = express();
 const PORT = 3001;
 
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 // JSON middleware
 app.use(express.json());
 
-// Root GET route
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to FaithfulHands API' });
-});
+
+
+// Routes
+app.use('/api/children', childrenRoutes);
+app.use('/api/staff', staffRoutes);
 
 // Start server
 app.listen(PORT, () => {
