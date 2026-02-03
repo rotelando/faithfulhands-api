@@ -15,4 +15,8 @@ childrenRoutes.get('/', (req, res) => {
   childrenController.getChildren(req, res);
 });
 
+childrenRoutes.post('/', (req, res) => {
+  childrenController.createChild(req, res);
+});
+
 export default childrenRoutes;

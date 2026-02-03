@@ -16,6 +16,20 @@ export interface GetChildrenResult {
   };
 }
 
+export interface CreateChildParams {
+  firstName: string;
+  lastName: string;
+  gender: string;
+  dateOfBirth: Date;
+  allergies?: string | null;
+  classId: number;
+  parties: Array<{ partyId: number; relationship: string }>;
+}
+
+export interface CreateChildResult {
+  id: number;
+}
+
 export class ChildrenService {
   private repository: ChildrenRepository;
 
@@ -66,5 +80,36 @@ export class ChildrenService {
         limit,
       },
     };
+  }
+
+  /**
+   * Create a new child with parties
+   */
+  async createChild(params: CreateChildParams): Promise<CreateChildResult> {
+    const { classId, parties, ...childData } = params;
+
+    // Validate class exists
+    const classExists = await this.repository.validateClassExists(classId);
+    if (!classExists) {
+      throw new Error(`Class with ID ${classId} does not exist`);
+    }
+
+    // Validate all parties exist
+    const partyIds = parties.map(p => p.partyId);
+    const invalidPartyIds = await this.repository.validatePartiesExist(partyIds);
+    if (invalidPartyIds.length > 0) {
+      throw new Error(`Parties with IDs ${invalidPartyIds.join(', ')} do not exist`);
+    }
+
+    // Create child and get the ID
+    const childId = await this.repository.create({
+      ...childData,
+      classId,
+    });
+
+    // Create children_parties join entries
+    await this.repository.createChildrenParties(childId, parties);
+
+    return { id: childId };
   }
 }
