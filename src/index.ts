@@ -1,9 +1,9 @@
 import express from 'express';
-import childrenRoutes from './routes/children';
-import staffRoutes from './routes/staff';
+import childrenRoutes from './routes/children.js';
+import staffRoutes from './routes/staff.js';
 import cors from 'cors';
-import { rateLimiterBotDetector } from './middleware/security';
-import { auth } from './lib/auth';
+import { rateLimiterBotDetector } from './middleware/security.js';
+import { auth } from './lib/auth.js';
 import { toNodeHandler } from 'better-auth/node';
 
 const app = express();
