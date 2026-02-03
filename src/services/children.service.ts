@@ -27,7 +27,7 @@ export interface CreateChildParams {
 }
 
 export interface CreateChildResult {
-  id: number;
+  data: number;
 }
 
 export class ChildrenService {
@@ -110,6 +110,6 @@ export class ChildrenService {
     // Create children_parties join entries
     await this.repository.createChildrenParties(childId, parties);
 
-    return { id: childId };
+    return { data: childId };
   }
 }
