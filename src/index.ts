@@ -3,6 +3,8 @@ import childrenRoutes from './routes/children';
 import staffRoutes from './routes/staff';
 import cors from 'cors';
 import { rateLimiterBotDetector } from './middleware/security';
+import { auth } from './lib/auth';
+import { toNodeHandler } from 'better-auth/node';
 
 const app = express();
 const PORT = 3001;
@@ -20,6 +22,8 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+app.all("/api/auth/*slat", toNodeHandler(auth));
 
 // JSON middleware
 app.use(express.json());
