@@ -6,6 +6,10 @@ import cors from 'cors';
 const app = express();
 const PORT = 3001;
 
+if (!process.env.FRONTEND_URL) {
+  console.warn('FRONTEND_URL is not defined, CORS may not work as expected');
+}
+
 app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true,
