@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { ChildrenService } from '../services/children.service';
-import { getChildrenQuerySchema } from '../validations/children';
+import { ChildrenService } from '../services/children.service.js';
+import { getChildrenQuerySchema } from '../validations/children.js';
 
 export class ChildrenController {
   private service: ChildrenService;

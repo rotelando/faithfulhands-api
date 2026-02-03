@@ -1,4 +1,4 @@
-import { ChildrenRepository } from '../repositories/children.repository';
+import { ChildrenRepository } from '../repositories/children.repository.js';
 
 export interface GetChildrenParams {
   search?: string;

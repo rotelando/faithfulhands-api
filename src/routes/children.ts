@@ -1,7 +1,7 @@
 import express from 'express';
-import { ChildrenController } from '../controllers/children.controller';
-import { ChildrenRepository } from '../repositories/children.repository';
-import { ChildrenService } from '../services/children.service';
+import { ChildrenController } from '../controllers/children.controller.js';
+import { ChildrenRepository } from '../repositories/children.repository.js';
+import { ChildrenService } from '../services/children.service.js';
 
 const childrenRoutes = express.Router();
 

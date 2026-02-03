@@ -1,7 +1,7 @@
 import { and, count, ilike, inArray, or } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
-import { db } from '../db';
-import { children, classes } from '../db/schema';
+import { db } from '../db/index.js';
+import { children, classes } from '../db/schema/index.js';
 
 export class ChildrenRepository {
   /**
