@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1770051764593,
-      "tag": "0000_foamy_skrulls",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1770055636111,
-      "tag": "0001_right_quasar",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1770114226863,
-      "tag": "0002_overrated_unicorn",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1770125665698,
-      "tag": "0003_damp_madrox",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1770132033285,
-      "tag": "0004_rainy_klaw",
+      "when": 1770149695914,
+      "tag": "0000_lame_lake",
       "breakpoints": true
     }
   ]

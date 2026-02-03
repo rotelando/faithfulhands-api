@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 import { date, index, integer, pgEnum, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
-import { children, classes, staff } from "./app.js";
+import { children, classes, parties } from "./app";
 
 const timestamps = {
     createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -17,8 +17,8 @@ export const attendanceSessions = pgTable('attendance_sessions', {
     classId: integer('class_id').notNull().references(() => classes.id),
     checkedInAt: timestamp('checked_in_at'),
     checkedOutAt: timestamp('checked_out_at'),
-    checkedInBy: integer('checked_in_by').notNull().references(() => staff.id),
-    checkedOutBy: integer('checked_out_by').notNull().references(() => staff.id),
+    checkedInBy: integer('checked_in_by').notNull().references(() => parties.id),
+    checkedOutBy: integer('checked_out_by').notNull().references(() => parties.id),
     serviceDate: date('date').notNull(),
     status: attendanceSessionStatusEnum('status').notNull().default('active'),
     notes: text('notes'),
@@ -41,7 +41,7 @@ export const pickupTokens = pgTable('pickup_tokens', {
     issuedAt: timestamp('issued_at').notNull(),
     expiresAt: timestamp('expires_at').notNull(),
     usedAt: timestamp('used_at'),
-    usedBy: integer('used_by').references(() => staff.id),
+    usedBy: integer('used_by').references(() => parties.id),
     status: tokenStatusEnum('status').notNull().default('active'),
     ...timestamps,
 }, (table) => ({
@@ -61,13 +61,13 @@ export const attendanceSessionsRelations = relations(attendanceSessions, ({ one,
         fields: [attendanceSessions.classId],
         references: [classes.id],
     }),
-    checkedInByStaff: one(staff, {
+    checkedInByParty: one(parties, {
         fields: [attendanceSessions.checkedInBy],
-        references: [staff.id],
+        references: [parties.id],
     }),
-    checkedOutByStaff: one(staff, {
+    checkedOutByParty: one(parties, {
         fields: [attendanceSessions.checkedOutBy],
-        references: [staff.id],
+        references: [parties.id],
     }),
     pickupTokens: many(pickupTokens),
 }));
@@ -77,9 +77,9 @@ export const pickupTokensRelations = relations(pickupTokens, ({ one }) => ({
         fields: [pickupTokens.attendanceSessionId],
         references: [attendanceSessions.id],
     }),
-    usedByStaff: one(staff, {
+    usedByParty: one(parties, {
         fields: [pickupTokens.usedBy],
-        references: [staff.id],
+        references: [parties.id],
     }),
 }));
 

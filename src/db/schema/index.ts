@@ -1,3 +1,3 @@
-export * from './app.js';
-export * from './auth.js';
-export * from './attendance_sessions.js';
+export * from './app';
+export * from './auth';
+export * from './attendance_sessions';

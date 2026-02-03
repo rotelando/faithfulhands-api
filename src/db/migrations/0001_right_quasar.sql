@@ -1,1 +1,0 @@
-ALTER TABLE "children" ALTER COLUMN "allergies" DROP NOT NULL;
