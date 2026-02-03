@@ -1,13 +1,10 @@
 import { relations } from "drizzle-orm";
-import { boolean, index, pgEnum, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { boolean, index, pgTable, text, timestamp, unique } from "drizzle-orm/pg-core";
 
 const timestamps = {
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
 }
-
-// Role enum for user table
-export const roleEnum = pgEnum('role', ['guardian', 'staff', 'admin']);
 
 // User table - Better Auth base structure with custom fields
 export const user = pgTable('user', {
@@ -16,7 +13,6 @@ export const user = pgTable('user', {
     emailVerified: boolean('email_verified').notNull().default(false),
     name: text('name'),
     image: text('image'),
-    role: roleEnum('role').notNull().default('staff'),
     imageCldPubId: text('image_cld_pub_id'),
     ...timestamps,
 });

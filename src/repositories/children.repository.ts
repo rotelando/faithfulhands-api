@@ -42,9 +42,9 @@ export class ChildrenRepository {
       limit: limit,
       with: {
         class: true,
-        guardians: {
+        parties: {
           with: {
-            guardian: true,
+            party: true,
           },
         },
       },
