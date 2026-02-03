@@ -42,9 +42,9 @@ export class ChildrenRepository {
       limit: limit,
       with: {
         class: true,
-        parents: {
+        guardians: {
           with: {
-            parent: true,
+            guardian: true,
           },
         },
       },

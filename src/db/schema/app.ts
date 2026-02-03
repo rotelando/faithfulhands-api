@@ -15,7 +15,7 @@ export const classes = pgTable('classes', {
   ...timestamps,
 });
 
-export const parents = pgTable('parents', {
+export const guardians = pgTable('guardians', {
     id: serial('id').primaryKey(),
     firstName: varchar('first_name', { length: 255 }).notNull(),
     lastName: varchar('last_name', { length: 255 }).notNull(),
@@ -46,45 +46,45 @@ export const children = pgTable('children', {
     ...timestamps,
 });
 
-export const childrenParents = pgTable('children_parents', {
+export const childrenGuardians = pgTable('children_guardians', {
     id: serial('id').primaryKey(),
     childId: integer('child_id').references(() => children.id),
-    parentId: integer('parent_id').references(() => parents.id),
+    guardianId: integer('guardian_id').references(() => guardians.id),
     relationship: varchar('relationship', { length: 255 }).notNull(),
     ...timestamps,
 });
 
 export const classRelations = relations(classes, ({many}) => ({children: many(children)}))
 
-export const parentRelations = relations(parents, ({many}) => ({children: many(childrenParents)}))
+export const guardianRelations = relations(guardians, ({many}) => ({children: many(childrenGuardians)}))
 
 export const childRelations = relations(children, ({one, many}) => ({
     class: one(classes, {
         fields: [children.classId],
         references: [classes.id],
     }),
-    parents: many(childrenParents),
+    guardians: many(childrenGuardians),
 }));
 
-export const childrenParentsRelations = relations(childrenParents, ({one}) => ({
+export const childrenGuardiansRelations = relations(childrenGuardians, ({one}) => ({
     child: one(children, {
-        fields: [childrenParents.childId],
+        fields: [childrenGuardians.childId],
         references: [children.id],
     }),
-    parent: one(parents, {
-        fields: [childrenParents.parentId],
-        references: [parents.id],
+    guardian: one(guardians, {
+        fields: [childrenGuardians.guardianId],
+        references: [guardians.id],
     }),
 }));
 
 export type Class = typeof classes.$inferSelect;
 export type NewClass = typeof classes.$inferInsert;
 
-export type Parent = typeof parents.$inferSelect;
-export type NewParent = typeof parents.$inferInsert;
+export type Guardian = typeof guardians.$inferSelect;
+export type NewGuardian = typeof guardians.$inferInsert;
 
 export type Children = typeof children.$inferSelect;
 export type NewChildren = typeof children.$inferInsert;
 
-export type ChildrenParent = typeof childrenParents.$inferSelect;
-export type NewChildrenParent = typeof childrenParents.$inferInsert;
+export type ChildrenGuardian = typeof childrenGuardians.$inferSelect;
+export type NewChildrenGuardian = typeof childrenGuardians.$inferInsert;

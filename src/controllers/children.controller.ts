@@ -32,14 +32,14 @@ export class ChildrenController {
         return;
       }
 
-      const { search, className, page, limit } = value;
+      const { search, page, limit } = value;
 
       // Call service to get children
       const result = await this.service.getChildren({
         search,
-        className,
-        page,
-        limit,
+        class: value.class,
+        page: page,
+        limit: limit,
       });
 
       res.status(200).json(result);

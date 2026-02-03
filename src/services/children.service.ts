@@ -2,7 +2,7 @@ import { ChildrenRepository } from '../repositories/children.repository';
 
 export interface GetChildrenParams {
   search?: string;
-  className?: string;
+  class?: string;
   page: number;
   limit: number;
 }
@@ -27,7 +27,8 @@ export class ChildrenService {
    * Get paginated list of children with filters
    */
   async getChildren(params: GetChildrenParams): Promise<GetChildrenResult> {
-    const { search, className, page, limit } = params;
+    const { search, page, limit } = params;
+    const className = params.class;
     const offset = (page - 1) * limit;
 
     // If className filter is provided, get matching class IDs first

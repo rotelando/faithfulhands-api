@@ -20,8 +20,6 @@ app.use(cors({
 // JSON middleware
 app.use(express.json());
 
-
-
 // Routes
 app.use('/api/children', childrenRoutes);
 app.use('/api/staff', staffRoutes);
