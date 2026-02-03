@@ -2,6 +2,7 @@ import express from 'express';
 import childrenRoutes from './routes/children';
 import staffRoutes from './routes/staff';
 import cors from 'cors';
+import { rateLimiterBotDetector } from './middleware/security';
 
 const app = express();
 const PORT = 3001;
@@ -9,6 +10,9 @@ const PORT = 3001;
 if (!process.env.FRONTEND_URL) {
   console.warn('FRONTEND_URL is not defined, CORS may not work as expected');
 }
+
+// Rate limiter middleware
+app.use(rateLimiterBotDetector);
 
 app.use(cors({
   origin: process.env.FRONTEND_URL,
