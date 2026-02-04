@@ -42,13 +42,13 @@ export class ChildrenService {
    */
   async getChildren(params: GetChildrenParams): Promise<GetChildrenResult> {
     const { search, page, limit } = params;
-    const className = params.class;
+    const classCode = params.class;
     const offset = (page - 1) * limit;
 
-    // If className filter is provided, get matching class IDs first
+    // If classCode filter is provided, get matching class IDs first
     let classIds: number[] | undefined;
-    if (className) {
-      classIds = await this.repository.findClassIdsByName(className);
+    if (classCode) {
+      classIds = await this.repository.findClassIdsByCode(classCode);
       
       // If no classes match, return empty result early
       if (classIds.length === 0) {

@@ -1,7 +1,7 @@
-import { and, desc, ilike, or, sql } from 'drizzle-orm';
+import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { db } from '../db/index.js';
-import { parties, childrenParties, children } from '../db/schema/index.js';
+import { parties, partyRoles, roles } from '../db/schema/index.js';
 
 export class PartiesRepository {
   /**
@@ -12,10 +12,10 @@ export class PartiesRepository {
     let query = db
       .selectDistinct({ id: parties.id, createdAt: parties.createdAt })
       .from(parties)
-      .leftJoin(childrenParties, sql`${parties.id} = ${childrenParties.partyId}`)
-      .leftJoin(children, sql`${childrenParties.childId} = ${children.id}`);
+      .leftJoin(partyRoles, eq(parties.id, partyRoles.partyId))
+      .leftJoin(roles, eq(partyRoles.roleId, roles.id));
 
-    const countResult = await query.where(whereClause);
+    const countResult = await (whereClause ? query.where(whereClause) : query);
 
     return Number(countResult.length ?? 0);
   }
@@ -29,18 +29,23 @@ export class PartiesRepository {
     offset: number,
     limit: number
   ) {
-    // Get distinct party IDs first to handle pagination correctly with proper ordering
-    const partyIdsResult = await db
+    // Base query with joins for role filtering
+    const baseQuery = db
       .selectDistinct({ id: parties.id, createdAt: parties.createdAt })
       .from(parties)
-      .leftJoin(childrenParties, sql`${parties.id} = ${childrenParties.partyId}`)
-      .leftJoin(children, sql`${childrenParties.childId} = ${children.id}`)
-      .where(whereClause)
+      .leftJoin(partyRoles, eq(parties.id, partyRoles.partyId))
+      .leftJoin(roles, eq(partyRoles.roleId, roles.id));
+
+    // Apply filters if provided
+    const filteredQuery = whereClause ? baseQuery.where(whereClause) : baseQuery;
+
+    // Get distinct party IDs first to handle pagination correctly with proper ordering
+    const partyIdsResult = await filteredQuery
       .orderBy(desc(parties.createdAt))
       .limit(limit)
       .offset(offset);
 
-    const partyIds = partyIdsResult.map(row => row.id);
+    const partyIds = partyIdsResult.map((row) => row.id);
 
     if (partyIds.length === 0) {
       return [];
@@ -50,13 +55,6 @@ export class PartiesRepository {
     // Preserve order by mapping results back to the original order
     const partiesData = await db.query.parties.findMany({
       where: (parties, { inArray }) => inArray(parties.id, partyIds),
-      with: {
-        children: {
-          with: {
-            child: true,
-          },
-        },
-      },
     });
 
     // Map results back to preserve the original order
@@ -65,18 +63,31 @@ export class PartiesRepository {
   }
 
   /**
-   * Build where clause for parties based on search
+   * Build where clause for parties based on search, role, and active flag
    */
-  buildWhereClause(search?: string): SQL | undefined {
-    const filterConditions = [];
+  buildWhereClause(
+    search?: string,
+    role?: 'guardian' | 'staff',
+    onlyActive?: boolean
+  ): SQL | undefined {
+    const filterConditions: SQL[] = [];
 
     if (search) {
       filterConditions.push(
         or(
           ilike(parties.firstName, `%${search}%`),
-          ilike(parties.lastName, `%${search}%`)
-        )
+          ilike(parties.lastName, `%${search}%`),
+          ilike(parties.email, `%${search}%`)
+        ) as SQL
       );
+    }
+
+    if (typeof onlyActive === 'boolean' && onlyActive) {
+      filterConditions.push(eq(parties.isActive, true));
+    }
+
+    if (role) {
+      filterConditions.push(eq(roles.name, role));
     }
 
     return filterConditions.length > 0 ? and(...filterConditions) : undefined;

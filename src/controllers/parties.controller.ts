@@ -32,11 +32,13 @@ export class PartiesController {
         return;
       }
 
-      const { search, page, limit } = value;
+      const { search, role, onlyActive, page, limit } = value;
 
       // Call service to get parties
       const result = await this.service.getParties({
         search,
+        role,
+        onlyActive,
         page: page,
         limit: limit,
       });

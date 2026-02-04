@@ -2,6 +2,8 @@ import { PartiesRepository } from '../repositories/parties.repository.js';
 
 export interface GetPartiesParams {
   search?: string;
+  role?: 'guardian' | 'staff';
+  onlyActive?: boolean;
   page: number;
   limit: number;
 }
@@ -27,11 +29,11 @@ export class PartiesService {
    * Get paginated list of parties with filters
    */
   async getParties(params: GetPartiesParams): Promise<GetPartiesResult> {
-    const { search, page, limit } = params;
+    const { search, role, onlyActive, page, limit } = params;
     const offset = (page - 1) * limit;
 
     // Build where clause for parties
-    const whereClause = this.repository.buildWhereClause(search);
+    const whereClause = this.repository.buildWhereClause(search, role, onlyActive);
 
     // Get total count and parties list in parallel
     const [totalCount, partiesList] = await Promise.all([

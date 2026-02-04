@@ -5,13 +5,13 @@ import { children, classes, parties, childrenParties } from '../db/schema/index.
 
 export class ChildrenRepository {
   /**
-   * Find class IDs by class name (case-insensitive search)
+   * Find class IDs by class code (exact match)
    */
-  async findClassIdsByName(className: string): Promise<number[]> {
+  async findClassIdsByCode(classCode: string): Promise<number[]> {
     const matchingClasses = await db
       .select({ id: classes.id })
       .from(classes)
-      .where(ilike(classes.name, `%${className}%`));
+      .where(eq(classes.code, classCode));
     
     return matchingClasses.map(c => c.id);
   }
