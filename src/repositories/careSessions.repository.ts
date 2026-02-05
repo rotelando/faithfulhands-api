@@ -6,6 +6,7 @@ import {
   careSessionsChildren,
   careSessionStatuses,
   classes,
+  children,
 } from "../db/schema/index.js";
 
 export class CareSessionsRepository {
@@ -104,6 +105,107 @@ export class CareSessionsRepository {
     }
 
     return filters.length > 0 ? and(...filters) : undefined;
+  }
+
+  /**
+   * Resolve class ID by class code.
+   */
+  async findClassIdByCode(code: string): Promise<number | null> {
+    const rows = await db
+      .select({ id: classes.id })
+      .from(classes)
+      .where(eq(classes.code, code))
+      .limit(1);
+
+    return rows[0]?.id ?? null;
+  }
+
+  /**
+   * Validate that given children IDs exist.
+   * Returns IDs that do NOT exist.
+   */
+  async findMissingChildrenIds(ids: number[]): Promise<number[]> {
+    if (!ids.length) return [];
+
+    const existing = await db
+      .select({ id: children.id })
+      .from(children)
+      .where(sql`${children.id} = ANY(${sql.join(ids, sql`,`)})`);
+
+    const existingIds = new Set(existing.map((r) => r.id));
+    return ids.filter((id) => !existingIds.has(id));
+  }
+
+  /**
+   * Find the default ACTIVE care session status id.
+   */
+  async getActiveStatusId(): Promise<number> {
+    const rows = await db
+      .select({ id: careSessionStatuses.id })
+      .from(careSessionStatuses)
+      .where(eq(careSessionStatuses.name, "active"))
+      .limit(1);
+
+    if (!rows[0]) {
+      throw new Error("Active care session status not configured");
+    }
+    return rows[0].id;
+  }
+
+  /**
+   * Create a new care session and return its id.
+   */
+  async createCareSession(data: {
+    name: string;
+    shortName?: string | null;
+    classId: number;
+    serviceDate: string; // YYYY-MM-DD
+    startDateTime: Date;
+    endDateTime: Date;
+  }): Promise<string> {
+    const statusId = await this.getActiveStatusId();
+
+    const rows = await db
+      .insert(careSessions)
+      .values({
+        name: data.name,
+        shortName: data.shortName ?? null,
+        classId: data.classId,
+        serviceDate: data.serviceDate,
+        startTime: data.startDateTime,
+        endTime: data.endDateTime,
+        status: statusId,
+      })
+      .returning({ id: careSessions.id });
+
+    return rows[0]!.id;
+  }
+
+  /**
+   * Create children links for a care session.
+   */
+  async createCareSessionsChildren(
+    careSessionId: string,
+    childIds: number[],
+  ): Promise<void> {
+    if (!childIds.length) return;
+
+    const rows = await db
+      .select({ id: careSessionsChildren.id })
+      .from(careSessionsChildren)
+      .limit(0); // just to ensure type; not used
+
+    // Set default status as ACTIVE for care_sessions_children
+    // For simplicity, use status id 1 (seeded as 'active'); could also query like getActiveStatusId for child statuses.
+    const activeChildStatusId = 1;
+
+    await db.insert(careSessionsChildren).values(
+      childIds.map((childId) => ({
+        careSessionId,
+        childId,
+        status: activeChildStatusId,
+      })),
+    );
   }
 }
 

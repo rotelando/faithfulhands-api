@@ -18,6 +18,22 @@ export interface GetCareSessionsResult {
   };
 }
 
+export interface CreateCareSessionParams {
+  name: string;
+  shortName?: string | null;
+  classCode: string;
+  serviceDate: Date;
+  startTime: string; // HH:mm
+  endTime: string;   // HH:mm
+  childrenIds?: number[];
+}
+
+export interface CreateCareSessionResult {
+  data: {
+    id: string;
+  };
+}
+
 export class CareSessionsService {
   private repository: CareSessionsRepository;
 
@@ -58,6 +74,66 @@ export class CareSessionsService {
         totalPages,
       },
     };
+  }
+
+  /**
+   * Create a new care session with optional children.
+   */
+  async createCareSession(
+    params: CreateCareSessionParams,
+  ): Promise<CreateCareSessionResult> {
+    const { name, shortName, classCode, serviceDate, startTime, endTime } =
+      params;
+    const childrenIds = params.childrenIds ?? [];
+
+    // Resolve class id by code
+    const classId = await this.repository.findClassIdByCode(classCode);
+    if (!classId) {
+      throw new Error(`Class with code ${classCode} does not exist`);
+    }
+
+    // Validate children existence
+    if (childrenIds.length) {
+      const missing = await this.repository.findMissingChildrenIds(childrenIds);
+      if (missing.length) {
+        throw new Error(
+          `Children with IDs ${missing.join(", ")} do not exist`,
+        );
+      }
+    }
+
+    // Build full Date objects for start and end times
+    const baseDate = new Date(
+      serviceDate.getFullYear(),
+      serviceDate.getMonth(),
+      serviceDate.getDate(),
+    );
+
+    const [sh, sm] = startTime.split(":").map(Number);
+    const [eh, em] = endTime.split(":").map(Number);
+
+    const startDateTime = new Date(baseDate);
+    startDateTime.setHours(sh ?? 0, sm ?? 0, 0, 0);
+
+    const endDateTime = new Date(baseDate);
+    endDateTime.setHours(eh ?? 0, em ?? 0, 0, 0);
+
+    // Persist care session
+    const id = await this.repository.createCareSession({
+      name,
+      shortName,
+      classId,
+      serviceDate: serviceDate.toISOString().split("T")[0]!,
+      startDateTime,
+      endDateTime,
+    });
+
+    // Persist optional children links
+    if (childrenIds.length) {
+      await this.repository.createCareSessionsChildren(id, childrenIds);
+    }
+
+    return { data: { id } };
   }
 }
 

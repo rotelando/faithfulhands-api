@@ -13,5 +13,9 @@ careSessionsRoutes.get("/", (req, res) => {
   careSessionsController.getCareSessions(req, res);
 });
 
+careSessionsRoutes.post("/", (req, res) => {
+  careSessionsController.createCareSession(req, res);
+});
+
 export default careSessionsRoutes;
 
