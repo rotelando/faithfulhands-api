@@ -90,6 +90,8 @@ export class CareSessionsService {
       params;
     const children = params.children ?? [];
 
+    console.log('Children', children);
+
     // Resolve class id by code
     const classId = await this.repository.findClassIdByCode(classCode);
     if (!classId) {
@@ -132,9 +134,16 @@ export class CareSessionsService {
       endDateTime,
     });
 
+    console.log('Care session ID', id);
+    console.log('Children', children);
+
     // Persist optional children links
+    try {
     if (children.length) {
-      await this.repository.createCareSessionsChildren(id, children);
+        await this.repository.createCareSessionsChildren(id, children);
+      }
+    } catch (error) {
+      throw new Error(`Failed to create care session: ${error}`);
     }
 
     return { data: { id } };

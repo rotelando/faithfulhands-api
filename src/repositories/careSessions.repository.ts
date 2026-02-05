@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { db } from "../db/index.js";
 import {
@@ -130,7 +130,7 @@ export class CareSessionsRepository {
     const existing = await db
       .select({ id: children.id })
       .from(children)
-      .where(sql`${children.id} = ANY(${sql.join(ids, sql`,`)})`);
+      .where(inArray(children.id, ids));
 
     const existingIds = new Set(existing.map((r) => r.id));
     return ids.filter((id) => !existingIds.has(id));
@@ -203,6 +203,7 @@ export class CareSessionsRepository {
     // For simplicity, use status id 1 (seeded as 'active'); could also query like getActiveStatusId for child statuses.
     const activeChildStatusId = 1;
 
+    try {
     await db.insert(careSessionsChildren).values(
       children.map((child) => ({
         careSessionId,
@@ -211,9 +212,12 @@ export class CareSessionsRepository {
         relationship: child.relationship,
         status: activeChildStatusId,
         checkedInBy: child.partyId,
-        checkedInAt: new Date(),
-      })),
-    );
+          checkedInAt: new Date(),
+        })),
+      );
+    } catch (error) {
+      throw new Error(`Failed to create care session children: ${error}`);
+    }
   }
 }
 

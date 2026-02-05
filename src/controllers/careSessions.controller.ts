@@ -80,6 +80,9 @@ export class CareSessionsController {
         stripUnknown: true,
       });
 
+      console.log('Request body', req.body);
+      console.log('Validation error', error);
+
       if (error) {
         res.status(400).json({
           error: "Validation error",
@@ -98,7 +101,7 @@ export class CareSessionsController {
         serviceDate,
         startTime,
         endTime,
-        childrenIds,
+        children,
       } = value as {
         name: string;
         shortName?: string | null;
@@ -106,7 +109,11 @@ export class CareSessionsController {
         serviceDate: Date;
         startTime: string;
         endTime: string;
-        childrenIds: number[];
+        children: {
+          childId: number;
+          partyId: number;
+          relationship: string;
+        }[];
       };
 
       const result = await this.service.createCareSession({
@@ -116,7 +123,7 @@ export class CareSessionsController {
         serviceDate,
         startTime,
         endTime,
-        childrenIds: childrenIds ?? [],
+        children
       } as CreateCareSessionParams);
 
       res.status(201).json(result);
