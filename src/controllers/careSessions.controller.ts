@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CareSessionsService } from "../services/careSessions.service.js";
+import { CareSessionsService, GetCareSessionsParams } from "../services/careSessions.service.js";
 import {
   getCareSessionsQuerySchema,
   createCareSessionSchema,
@@ -45,13 +45,22 @@ export class CareSessionsController {
       const dateString =
         date instanceof Date ? date.toISOString().split("T")[0] : undefined;
 
-      const result = await this.service.getCareSessions({
-        search,
-        class: classCode,
-        date: dateString,
+      const params: GetCareSessionsParams = {
         page,
         limit,
-      });
+      };
+      
+      if (search !== undefined) {
+        params.search = search;
+      }
+      if (classCode !== undefined) {
+        params.class = classCode;
+      }
+      if (dateString !== undefined) {
+        params.date = dateString;
+      }
+        
+      const result = await this.service.getCareSessions(params);
 
       res.status(200).json(result);
     } catch (error) {
