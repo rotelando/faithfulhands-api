@@ -121,7 +121,7 @@ export class CareSessionsService {
     // Persist care session
     const id = await this.repository.createCareSession({
       name,
-      shortName,
+      shortName: shortName ?? null,
       classId,
       serviceDate: serviceDate.toISOString().split("T")[0]!,
       startDateTime,
