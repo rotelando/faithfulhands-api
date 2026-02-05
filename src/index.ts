@@ -2,6 +2,7 @@ import express from 'express';
 import childrenRoutes from './routes/children.js';
 import partiesRoutes from './routes/parties.js';
 import classesRoutes from './routes/classes.js';
+import careSessionsRoutes from './routes/careSessions.js';
 import cors from 'cors';
 import { rateLimiterBotDetector } from './middleware/security.js';
 import { auth } from './lib/auth.js';
@@ -33,6 +34,7 @@ app.use(express.json());
 app.use('/api/children', childrenRoutes);
 app.use('/api/parties', partiesRoutes);
 app.use('/api/classes', classesRoutes);
+app.use('/api/careSessions', careSessionsRoutes);
 
 // Start server
 app.listen(PORT, () => {
