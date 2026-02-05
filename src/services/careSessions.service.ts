@@ -25,7 +25,11 @@ export interface CreateCareSessionParams {
   serviceDate: Date;
   startTime: string; // HH:mm
   endTime: string;   // HH:mm
-  childrenIds?: number[];
+  children?: {
+    childId: number;
+    partyId: number;
+    relationship: string;
+  }[];
 }
 
 export interface CreateCareSessionResult {
@@ -84,7 +88,7 @@ export class CareSessionsService {
   ): Promise<CreateCareSessionResult> {
     const { name, shortName, classCode, serviceDate, startTime, endTime } =
       params;
-    const childrenIds = params.childrenIds ?? [];
+    const children = params.children ?? [];
 
     // Resolve class id by code
     const classId = await this.repository.findClassIdByCode(classCode);
@@ -93,8 +97,8 @@ export class CareSessionsService {
     }
 
     // Validate children existence
-    if (childrenIds.length) {
-      const missing = await this.repository.findMissingChildrenIds(childrenIds);
+    if (children.length) {
+      const missing = await this.repository.findMissingChildrenIds(children.map((child) => child.childId));
       if (missing.length) {
         throw new Error(
           `Children with IDs ${missing.join(", ")} do not exist`,
@@ -129,8 +133,8 @@ export class CareSessionsService {
     });
 
     // Persist optional children links
-    if (childrenIds.length) {
-      await this.repository.createCareSessionsChildren(id, childrenIds);
+    if (children.length) {
+      await this.repository.createCareSessionsChildren(id, children);
     }
 
     return { data: { id } };

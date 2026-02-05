@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CareSessionsService, GetCareSessionsParams } from "../services/careSessions.service.js";
+import { CareSessionsService, CreateCareSessionParams, GetCareSessionsParams } from "../services/careSessions.service.js";
 import {
   getCareSessionsQuerySchema,
   createCareSessionSchema,
@@ -106,18 +106,18 @@ export class CareSessionsController {
         serviceDate: Date;
         startTime: string;
         endTime: string;
-        childrenIds?: number[];
+        childrenIds: number[];
       };
 
       const result = await this.service.createCareSession({
         name,
-        shortName,
+        shortName: shortName ?? null,
         classCode,
         serviceDate,
         startTime,
         endTime,
-        childrenIds,
-      });
+        childrenIds: childrenIds ?? [],
+      } as CreateCareSessionParams);
 
       res.status(201).json(result);
     } catch (error) {

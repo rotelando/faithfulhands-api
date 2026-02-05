@@ -25,8 +25,14 @@ export const createCareSessionSchema = Joi.object({
     .pattern(/^\d{2}:\d{2}$/)
     .required(),
   // optional children ids
-  childrenIds: Joi.array()
-    .items(Joi.number().integer().min(1))
+  children: Joi.array()
+    .items(
+      Joi.object({
+        childId: Joi.number().integer().min(1).required(),
+        partyId: Joi.number().integer().min(1).required(),
+        relationship: Joi.string().trim().min(1).required(),
+      }),
+    )
     .optional(),
 });
 

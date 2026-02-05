@@ -186,9 +186,13 @@ export class CareSessionsRepository {
    */
   async createCareSessionsChildren(
     careSessionId: string,
-    childIds: number[],
+    children: {
+      childId: number;
+      partyId: number;
+      relationship: string;
+    }[],
   ): Promise<void> {
-    if (!childIds.length) return;
+    if (!children.length) return;
 
     const rows = await db
       .select({ id: careSessionsChildren.id })
@@ -200,10 +204,14 @@ export class CareSessionsRepository {
     const activeChildStatusId = 1;
 
     await db.insert(careSessionsChildren).values(
-      childIds.map((childId) => ({
+      children.map((child) => ({
         careSessionId,
-        childId,
+        childId: child.childId,
+        partyId: child.partyId,
+        relationship: child.relationship,
         status: activeChildStatusId,
+        checkedInBy: child.partyId,
+        checkedInAt: new Date(),
       })),
     );
   }
