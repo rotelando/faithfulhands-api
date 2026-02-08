@@ -8,6 +8,9 @@ import {
   classes,
   children,
 } from "../db/schema/index.js";
+import type { DBCareSessionEntity } from "./types.js";
+import type { GetCareSessionByIdResult } from "../types/index.js";
+import { mapDBCareSessionEntityToGetByIdResult } from "../mappers/careSessions.mapper.js";
 
 export class CareSessionsRepository {
   /**
@@ -219,5 +222,40 @@ export class CareSessionsRepository {
       throw new Error(`Failed to create care session children: ${error}`);
     }
   }
-}
 
+  /**
+   * Find a care session by id. Returns domain result with children grouped by child (parties array per child).
+   */
+  async findCareSessionById(id: string): Promise<GetCareSessionByIdResult> {
+    const row = await db.query.careSessions.findFirst({
+      where: eq(careSessions.id, id),
+      with: {
+        class: true,
+        status: true,
+        children: {
+          with: {
+            child: { 
+              with: { 
+                class: true, 
+                parties: { 
+                  with: { 
+                    party: true
+                  } 
+                } 
+              } 
+            },
+            status: true,
+            checkedInBy: true,
+            checkedOutBy: true,
+          },
+        },
+      },
+    });
+
+    if (!row) {
+      throw new Error(`Care session not found with id: ${id}`);
+    }
+
+    return mapDBCareSessionEntityToGetByIdResult(row as DBCareSessionEntity);
+  }
+}

@@ -6,7 +6,7 @@ if (!process.env.DATABASE_URL) {
 }
 
 export default defineConfig({
-  schema: "./dist/db/schema/index.js",
+  schema: "./dist/db/schema/index.js", // We need to use the compile since drizzle-kit needs the .js on Render server etc.
   out: "./src/db/migrations",
   dialect: "postgresql",
   dbCredentials: {

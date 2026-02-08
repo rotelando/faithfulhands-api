@@ -36,3 +36,6 @@ export const createCareSessionSchema = Joi.object({
     .optional(),
 });
 
+export const getCareSessionByIdSchema = Joi.object({
+  id: Joi.string().uuid().required(),
+});

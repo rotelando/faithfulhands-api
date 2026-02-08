@@ -59,7 +59,7 @@ export const careSessionsChildren = pgTable('care_sessions_children', {
     id: uuid('id').primaryKey().defaultRandom(),
     careSessionId: uuid('care_session_id').notNull().references(() => careSessions.id),
     childId: integer('child_id').notNull().references(() => children.id),
-    checkedInAt: timestamp('checked_in_at'),
+    checkedInAt: timestamp('checked_in_at').notNull(),
     checkedInBy: integer('checked_in_by').notNull().references(() => parties.id),
     checkedOutAt: timestamp('checked_out_at'),
     checkedOutBy: integer('checked_out_by').references(() => parties.id),

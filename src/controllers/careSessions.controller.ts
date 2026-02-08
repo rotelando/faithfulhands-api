@@ -1,11 +1,15 @@
-import { Request, Response } from "express";
-import { CareSessionsService, CreateCareSessionParams, GetCareSessionsParams } from "../services/careSessions.service.js";
+
+import { CareSessionsService } from "../services/careSessions.service.js";
+import { CreateCareSessionParams, GetCareSessionByIdResult, GetCareSessionsParams } from "../types";
 import {
   getCareSessionsQuerySchema,
   createCareSessionSchema,
+  getCareSessionByIdSchema,
 } from "../validations/careSessions.js";
+import { Request, Response } from "express";
 
 export class CareSessionsController {
+  
   private service: CareSessionsService;
 
   constructor(service: CareSessionsService) {
@@ -80,9 +84,6 @@ export class CareSessionsController {
         stripUnknown: true,
       });
 
-      console.log('Request body', req.body);
-      console.log('Validation error', error);
-
       if (error) {
         res.status(400).json({
           error: "Validation error",
@@ -138,5 +139,29 @@ export class CareSessionsController {
       res.status(500).json({ error: "Failed to create care session" });
     }
   }
-}
 
+  /**
+   * Update a care session
+   * GET /careSessions/:id
+   */
+  async getCareSessionById(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { error, value } = getCareSessionByIdSchema.validate({ id: id as string }, {
+        abortEarly: false,
+        stripUnknown: true,
+      });
+
+      if (error) {
+        res.status(400).json({ error: "Validation error", details: error.details.map((detail) => ({ field: detail.path.join("."), message: detail.message })) });
+      }
+
+      const result: GetCareSessionByIdResult = await this.service.getCareSessionById(value.id);
+
+      res.status(200).json({data: result});
+    } catch (error) {
+      console.error("Error getting care session by id:", error);
+      res.status(500).json({ error: "Failed to get care session by id" });
+    }
+  }
+}

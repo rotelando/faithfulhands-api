@@ -1,35 +1,5 @@
 import { ChildrenRepository } from '../repositories/children.repository.js';
-
-export interface GetChildrenParams {
-  search?: string;
-  class?: string;
-  page: number;
-  limit: number;
-}
-
-export interface GetChildrenResult {
-  data: any[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-  };
-}
-
-export interface CreateChildParams {
-  firstName: string;
-  lastName: string;
-  gender: string;
-  dateOfBirth: Date;
-  allergies?: string | null;
-  classId: number;
-  parties: Array<{ partyId: number; relationship: string }>;
-}
-
-export interface CreateChildResult {
-  data: number;
-}
-
+import type { GetChildrenParams, GetChildrenResult, CreateChildParams, CreateCareSessionResult } from '../types';
 export class ChildrenService {
   private repository: ChildrenRepository;
 
@@ -85,7 +55,7 @@ export class ChildrenService {
   /**
    * Create a new child with parties
    */
-  async createChild(params: CreateChildParams): Promise<CreateChildResult> {
+  async createChild(params: CreateChildParams): Promise<CreateCareSessionResult> {
     const { classId, parties, ...childData } = params;
 
     // Validate class exists
@@ -110,6 +80,6 @@ export class ChildrenService {
     // Create children_parties join entries
     await this.repository.createChildrenParties(childId, parties);
 
-    return { data: childId };
+    return { data: { id: childId.toString() } };
   }
 }

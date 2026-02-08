@@ -1,44 +1,14 @@
 import { CareSessionsRepository } from "../repositories/careSessions.repository.js";
-
-export interface GetCareSessionsParams {
-  search?: string;
-  class?: string; // class code
-  date?: string;  // YYYY-MM-DD
-  page: number;
-  limit: number;
-}
-
-export interface GetCareSessionsResult {
-  data: any[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
-
-export interface CreateCareSessionParams {
-  name: string;
-  shortName?: string | null;
-  classCode: string;
-  serviceDate: Date;
-  startTime: string; // HH:mm
-  endTime: string;   // HH:mm
-  children?: {
-    childId: number;
-    partyId: number;
-    relationship: string;
-  }[];
-}
-
-export interface CreateCareSessionResult {
-  data: {
-    id: string;
-  };
-}
+import type { 
+  CreateCareSessionParams,
+  CreateCareSessionResult,
+  GetCareSessionsParams,
+  GetCareSessionsResult,
+  GetCareSessionByIdResult
+} from "../types";
 
 export class CareSessionsService {
+
   private repository: CareSessionsRepository;
 
   constructor(repository: CareSessionsRepository) {
@@ -90,8 +60,6 @@ export class CareSessionsService {
       params;
     const children = params.children ?? [];
 
-    console.log('Children', children);
-
     // Resolve class id by code
     const classId = await this.repository.findClassIdByCode(classCode);
     if (!classId) {
@@ -134,9 +102,6 @@ export class CareSessionsService {
       endDateTime,
     });
 
-    console.log('Care session ID', id);
-    console.log('Children', children);
-
     // Persist optional children links
     try {
     if (children.length) {
@@ -147,6 +112,10 @@ export class CareSessionsService {
     }
 
     return { data: { id } };
+  }
+
+  async getCareSessionById(id: string): Promise<GetCareSessionByIdResult> {
+    return this.repository.findCareSessionById(id);
   }
 }
 
